@@ -1,0 +1,37 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: battle_nest_prod
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env.prod
+    depends_on:
+      - db
+    restart: always
+    networks:
+      - nest_network
+
+  db:
+    image: postgres:16-alpine
+    container_name: postgres_prod
+    restart: always
+    env_file:
+      - .env.prod
+    environment:
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    volumes:
+      - postgres_prod_data:/var/lib/postgresql/data
+    networks:
+      - nest_network
+
+volumes:
+  postgres_prod_data:
+
+networks:
+  nest_network:
+    driver: bridge

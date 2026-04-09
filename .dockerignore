@@ -1,0 +1,12 @@
+node_modules
+dist
+.git
+.gitignore
+.env
+.env.dev
+.env.prod
+npm-debug.log
+pnpm-debug.log
+Dockerfile.dev
+docker-compose.dev.yml
+docker-compose.prod.yml
