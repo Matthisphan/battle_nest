@@ -1,8 +1,4 @@
-import {
-  BadRequestException,
-  Injectable,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { BadRequestException, Injectable, UnauthorizedException, } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { randomUUID } from 'crypto';
@@ -86,8 +82,6 @@ export class AuthService {
 
     const payload = {
       sub: user.id,
-      email: user.email,
-      role: user.role,
     };
 
     const accessToken = await this.jwtService.signAsync(payload);
@@ -184,9 +178,7 @@ export class AuthService {
       throw new BadRequestException('Reset token has expired');
     }
 
-    const hashedPassword = await bcrypt.hash(resetPasswordDto.newPassword, 10);
-
-    user.password = hashedPassword;
+    user.password = await bcrypt.hash(resetPasswordDto.newPassword, 10);
     user.passwordResetToken = null;
     user.passwordResetExpires = null;
 
