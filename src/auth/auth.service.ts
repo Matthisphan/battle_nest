@@ -1,4 +1,9 @@
-import { BadRequestException, Injectable, UnauthorizedException, } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
+
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { randomUUID } from 'crypto';
@@ -43,6 +48,10 @@ export class AuthService {
       email,
       password: hashedPassword,
       avatar: registerDto.avatar ?? null,
+      displayName: username,
+      bio: null,
+      country: null,
+      favoriteGame: null,
       role: UserRole.PLAYER,
       isEmailVerified: false,
       emailVerificationToken,
