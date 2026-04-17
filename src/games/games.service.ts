@@ -30,12 +30,12 @@ export class GamesService {
     });
   }
 
-  findOne(id: string) {
-    return this.gamesRepository.findOne({ where: { id } });
+  findByName(name: string) {
+    return this.gamesRepository.findOne({ where: { name: name.trim() } });
   }
 
-  async findOneOrFail(id: string) {
-    const game = await this.findOne(id);
+  async findByNameOrFail(name: string) {
+    const game = await this.findByName(name);
 
     if (!game) {
       throw new NotFoundException('Game not found');
@@ -44,8 +44,8 @@ export class GamesService {
     return game;
   }
 
-  async update(id: string, updateGameDto: UpdateGameDto) {
-    const game = await this.findOneOrFail(id);
+  async update(name: string, updateGameDto: UpdateGameDto) {
+    const game = await this.findByNameOrFail(name);
 
     Object.assign(game, {
       ...updateGameDto,
@@ -57,8 +57,8 @@ export class GamesService {
     return this.gamesRepository.save(game);
   }
 
-  async remove(id: string) {
-    const game = await this.findOneOrFail(id);
+  async remove(name: string) {
+    const game = await this.findByNameOrFail(name);
 
     await this.gamesRepository.remove(game);
 

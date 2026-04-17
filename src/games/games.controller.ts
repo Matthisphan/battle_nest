@@ -4,7 +4,6 @@ import {
   Delete,
   Get,
   Param,
-  ParseUUIDPipe,
   Patch,
   Post,
   UseGuards,
@@ -29,9 +28,9 @@ export class GamesController {
     return this.gamesService.findAll();
   }
 
-  @Get(':id')
-  findOne(@Param('id', new ParseUUIDPipe()) id: string) {
-    return this.gamesService.findOneOrFail(id);
+  @Get(':name')
+  findOne(@Param('name') name: string) {
+    return this.gamesService.findByNameOrFail(name);
   }
 
   @Post()
@@ -42,22 +41,19 @@ export class GamesController {
     return this.gamesService.create(createGameDto);
   }
 
-  @Patch(':id')
+  @Patch(':name')
   @ApiBearerAuth('access-token')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN)
-  update(
-    @Param('id', new ParseUUIDPipe()) id: string,
-    @Body() updateGameDto: UpdateGameDto,
-  ) {
-    return this.gamesService.update(id, updateGameDto);
+  update(@Param('name') name: string, @Body() updateGameDto: UpdateGameDto) {
+    return this.gamesService.update(name, updateGameDto);
   }
 
-  @Delete(':id')
+  @Delete(':name')
   @ApiBearerAuth('access-token')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN)
-  remove(@Param('id', new ParseUUIDPipe()) id: string) {
-    return this.gamesService.remove(id);
+  remove(@Param('name') name: string) {
+    return this.gamesService.remove(name);
   }
 }

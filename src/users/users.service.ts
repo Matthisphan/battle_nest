@@ -56,10 +56,32 @@ export class UsersService {
     return user;
   }
 
-  async findPublicByIdOrFail(id: string) {
+  findByEmail(email: string) {
+    return this.usersRepository.findOne({
+      where: { email },
+    });
+  }
+
+  findByUsername(username: string) {
+    return this.usersRepository.findOne({
+      where: { username: username.trim() },
+    });
+  }
+
+  async findByUsernameOrFail(username: string) {
+    const user = await this.findByUsername(username);
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    return user;
+  }
+
+  async findPublicByUsernameOrFail(username: string) {
     const user = await this.usersRepository.findOne({
       where: {
-        id,
+        username: username.trim(),
         role: UserRole.PLAYER,
       },
     });
@@ -69,18 +91,6 @@ export class UsersService {
     }
 
     return user;
-  }
-
-  findByEmail(email: string) {
-    return this.usersRepository.findOne({
-      where: { email },
-    });
-  }
-
-  findByUsername(username: string) {
-    return this.usersRepository.findOne({
-      where: { username },
-    });
   }
 
   findByEmailVerificationToken(token: string) {

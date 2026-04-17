@@ -25,6 +25,15 @@
 
 [Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
 
+## API route keys
+
+- `GET /games/:name`
+- `PATCH /games/:name` (admin)
+- `DELETE /games/:name` (admin)
+- `GET /players/:username`
+
+When `name` contains spaces or special characters, URL-encode it client-side.
+
 ## Project setup
 
 ```bash
@@ -49,6 +58,9 @@ $ pnpm run start:prod
 ```bash
 # unit tests
 $ pnpm run test
+
+# focused route tests (games by name / players by username)
+$ pnpm run test:routes
 
 # e2e tests
 $ pnpm run test:e2e

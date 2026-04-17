@@ -46,12 +46,15 @@ export class UsersController {
 
   @ApiBearerAuth('access-token')
   @UseGuards(OptionalJwtAuthGuard)
-  @Get(':id')
-  async getPlayerById(@Param('id') id: string, @Req() req: RequestWithUser) {
+  @Get(':username')
+  async getPlayerByUsername(
+    @Param('username') username: string,
+    @Req() req: RequestWithUser,
+  ) {
     const user =
       req.user?.role === UserRole.ADMIN
-        ? await this.usersService.findByIdOrFail(id)
-        : await this.usersService.findPublicByIdOrFail(id);
+        ? await this.usersService.findByUsernameOrFail(username)
+        : await this.usersService.findPublicByUsernameOrFail(username);
 
     return req.user?.role === UserRole.ADMIN
       ? this.usersService.toPrivateProfile(user)
