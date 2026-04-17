@@ -5,6 +5,8 @@ import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { AuthModule } from './auth/auth.module';
+import { Game } from './games/entities/game.entity';
+import { GamesModule } from './games/games.module';
 import { DatabaseSeed } from './seeds/database.seed';
 import { User } from './users/entities/user.entity';
 import { UsersModule } from './users/users.module';
@@ -31,13 +33,16 @@ import { UsersModule } from './users/users.module';
         username: configService.get<string>('DB_USERNAME'),
         password: configService.get<string>('DB_PASSWORD'),
         database: configService.get<string>('DB_NAME'),
-        entities: [User],
+        entities: [User, Game],
         synchronize: true,
       }),
     }),
 
+    TypeOrmModule.forFeature([Game]),
+
     UsersModule,
     AuthModule,
+    GamesModule,
   ],
   providers: [
     {

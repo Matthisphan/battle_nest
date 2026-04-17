@@ -1,8 +1,11 @@
 import { Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
+import { Repository } from 'typeorm';
 
 import { UserRole } from '../auth/enums/user-role.enum';
+import { Game } from '../games/entities/game.entity';
 import { UsersService } from '../users/users.service';
 
 @Injectable()
@@ -12,6 +15,8 @@ export class DatabaseSeed implements OnApplicationBootstrap {
   constructor(
     private readonly usersService: UsersService,
     private readonly configService: ConfigService,
+    @InjectRepository(Game)
+    private readonly gamesRepository: Repository<Game>,
   ) {}
 
   async onApplicationBootstrap() {
@@ -24,11 +29,16 @@ export class DatabaseSeed implements OnApplicationBootstrap {
     }
 
     await this.seedUsers();
+    await this.seedGames();
   }
 
   private async seedUsers() {
     await this.createAdminIfMissing();
     await this.createPlayersIfMissing();
+  }
+
+  private async seedGames() {
+    await this.createGamesIfMissing();
   }
 
   private async createAdminIfMissing() {
@@ -110,6 +120,57 @@ export class DatabaseSeed implements OnApplicationBootstrap {
       });
 
       this.logger.log(`${player.username} account created`);
+    }
+  }
+
+  private async createGamesIfMissing() {
+    const games = [
+      {
+        name: 'Street Fighter 6',
+        publisher: 'Capcom',
+        releaseDate: new Date('2023-06-02'),
+        genre: 'Fighting',
+      },
+      {
+        name: 'Tekken 8',
+        publisher: 'Bandai Namco',
+        releaseDate: new Date('2024-01-26'),
+        genre: 'Fighting',
+      },
+      {
+        name: 'Guilty Gear Strive',
+        publisher: 'Arc System Works',
+        releaseDate: new Date('2021-06-11'),
+        genre: 'Fighting',
+      },
+      {
+        name: 'Mortal Kombat 1',
+        publisher: 'Warner Bros. Games',
+        releaseDate: new Date('2023-09-19'),
+        genre: 'Fighting',
+      },
+      {
+        name: 'Super Smash Bros. Ultimate',
+        publisher: 'Nintendo',
+        releaseDate: new Date('2018-12-07'),
+        genre: 'Platform Fighting',
+      },
+    ];
+
+    for (const gameData of games) {
+      const existingGame = await this.gamesRepository.findOne({
+        where: { name: gameData.name },
+      });
+
+      if (existingGame) {
+        this.logger.log(`${gameData.name} already exists`);
+        continue;
+      }
+
+      const game = this.gamesRepository.create(gameData);
+      await this.gamesRepository.save(game);
+
+      this.logger.log(`${gameData.name} created`);
     }
   }
 }
