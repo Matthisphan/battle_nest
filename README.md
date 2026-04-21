@@ -1,110 +1,453 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Battle Nest API
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+API NestJS de gestion de joueurs, jeux, tournois et matchs.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+Toute la validation est prévue via Swagger.
 
-## Description
+## 1. Prerequis
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
-
-## API route keys
-
-- `GET /games/:name`
-- `PATCH /games/:name` (admin)
-- `DELETE /games/:name` (admin)
-- `GET /players/:username`
-
-When `name` contains spaces or special characters, URL-encode it client-side.
-
-## Project setup
-
+- Docker Desktop
+- Docker Compose v2
 ```bash
-$ pnpm install
+pnpm install
 ```
 
-## Compile and run the project
+## 2. Fichiers d environnement
 
-```bash
-# development
-$ pnpm run start
+Creer deux fichiers a la racine du projet s'il n'est pas existant.
 
-# watch mode
-$ pnpm run start:dev
+### .env.dev
 
-# production mode
-$ pnpm run start:prod
+```env
+NODE_ENV=development
+PORT=3000
+
+DB_HOST=db
+DB_PORT=5432
+DB_USERNAME=postgres
+DB_PASSWORD=postgres
+DB_NAME=battle_nest_dev
+
+JWT_SECRET=super-secret-dev-key
+
+SEED_ON_BOOT=true
+
+PGADMIN_DEFAULT_EMAIL=admin@admin.com
+PGADMIN_DEFAULT_PASSWORD=admin
 ```
 
-## Run tests
+### .env.prod
 
-```bash
-# unit tests
-$ pnpm run test
+```env
+NODE_ENV=production
+PORT=3000
 
-# focused route tests (games by name / players by username)
-$ pnpm run test:routes
+DB_HOST=db
+DB_PORT=5432
+DB_USERNAME=postgres
+DB_PASSWORD=postgres
+DB_NAME=battle_nest_prod
 
-# e2e tests
-$ pnpm run test:e2e
+JWT_SECRET=super-secret-prod-key
 
-# test coverage
-$ pnpm run test:cov
+SEED_ON_BOOT=false
 ```
 
-## Deployment
+Important:
+- Les comptes admin/player de test sont seeds uniquement en mode development avec SEED_ON_BOOT=true.
+- En production, cree tes comptes via les routes auth.
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+## 3. Lancer le projet
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+### DEV
 
 ```bash
-$ pnpm install -g @nestjs/mau
-$ mau deploy
+docker compose --env-file .env.dev -f docker-compose.dev.yml up --build
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+### PROD
 
-## Resources
+```bash
+docker compose --env-file .env.prod -f docker-compose.prod.yml up --build
+```
 
-Check out a few resources that may come in handy when working with NestJS:
+Arreter les conteneurs:
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+```bash
+docker compose --env-file .env.dev -f docker-compose.dev.yml down
+docker compose --env-file .env.prod -f docker-compose.prod.yml down
+```
 
-## Support
+## 4. URLs utiles
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+- API: http://localhost:3000
+- Swagger: http://localhost:3000/api
+- PgAdmin (dev): http://localhost:5050
 
-## Stay in touch
+## 5. Recuperer les tokens depuis les logs
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+Pour les routes suivantes, le token est affiche dans les logs Nest:
+- verification email
+- reset password
 
-## License
+Commande utile:
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+```bash
+docker compose --env-file .env.dev -f docker-compose.dev.yml logs -f app
+```
+
+Tu peux aussi filtrer visuellement dans les logs sur:
+- Email verification token:
+- Password reset token:
+
+## 6. Comptes de test seedes en dev
+
+- Admin:
+  - email: admin@battle.com
+  - password: Admin123!
+- User:
+  - email: player1@battle.com
+  - password: Player123!
+- User:
+  - email: player2@battle.com
+  - password: Player123!
+- User (banni):
+  - email: banned@battle.com
+  - password: Player123!
+  - statut: banned=true
+
+## 7. Procedure rapide avant demo
+
+1. Lancer la stack dev.
+2. Ouvrir Swagger.
+3. Faire login admin et login user pour recuperer les JWT.
+4. Cliquer sur Authorize dans Swagger et coller un token selon le test.
+
+## 8. Checklist de tests manuels route par route
+
+Legende:
+- Public: pas de token
+- Auth: token utilisateur connecte
+- Admin: token admin requis
+
+### Auth
+
+1. POST /auth/register (Public)
+
+Payload exemple:
+
+```json
+{
+  "username": "test",
+  "email": "test@test.test",
+  "password": "password123"
+}
+```
+
+Attendu:
+- 201
+- message de succes
+- utilisateur cree non verifie
+
+2. GET /auth/verify-email?token=... (Public)
+
+Attendu:
+- 200
+- email verifie
+
+3. POST /auth/login (Public)
+
+Payload admin:
+
+```json
+{
+  "email": "admin@battle.com",
+  "password": "Admin123!"
+}
+```
+
+Payload user:
+
+```json
+{
+  "email": "player1@battle.com",
+  "password": "Player123!"
+}
+```
+
+Payload user banni:
+
+```json
+{
+  "email": "banned@battle.com",
+  "password": "Player123!"
+}
+```
+
+Attendu:
+- 201
+- accessToken retourne
+- 403 pour le user banni
+
+4. POST /auth/forgot-password (Public)
+
+```json
+{
+  "email": "test@test.test"
+}
+```
+
+Attendu:
+- 201
+- message generique
+- token de reset dans les logs
+
+5. POST /auth/reset-password (Public)
+
+```json
+{
+  "token": "xxxxx",
+  "newPassword": "newPassword123"
+}
+```
+
+Attendu:
+- 201
+- mot de passe change
+
+Cas d erreur a montrer:
+- token invalide ou expire => 400
+
+### Games
+
+1. GET /games (Public)
+
+Attendu:
+- 200
+- liste des jeux
+
+2. GET /games/{name} (Public)
+
+Attendu:
+- 200 si existe
+- 404 sinon
+
+Note:
+- encoder le nom si espaces, ex Street%20Fighter%206
+
+3. POST /games (Admin)
+
+```json
+{
+  "name": "The King of Fighters XV",
+  "publisher": "SNK",
+  "releaseDate": "2022-02-17",
+  "genre": "Fighting"
+}
+```
+
+Attendu:
+- 201 en admin
+- 403 avec token user
+
+4. PATCH /games/{name} (Admin)
+
+```json
+{
+  "publisher": "SNK Corporation"
+}
+```
+
+Attendu:
+- 200 en admin
+
+5. DELETE /games/{name} (Admin)
+
+Attendu:
+- 200
+- message Game deleted successfully
+
+### Players
+
+1. GET /players (Public ou Auth)
+
+Attendu:
+- sans token: profils publics uniquement
+- avec token admin: profils prives
+
+2. GET /players/{username} (Public ou Auth)
+
+Attendu:
+- public: profil public
+- admin: profil prive
+
+3. GET /players/{username}/stats (Public ou Auth)
+
+Attendu:
+- 200
+- totalMatches, wins, losses, winRate, history
+
+4. GET /players/me (Auth)
+
+Attendu:
+- 200
+- profil du compte connecte
+
+5. GET /players/me/stats (Auth)
+
+Attendu:
+- 200
+- stats du compte connecte
+
+6. DELETE /players/me (Auth)
+
+Attendu:
+- 200
+- compte supprime
+
+7. PATCH /players/admin/{id}/ban (Admin)
+
+```json
+{
+  "banned": true
+}
+```
+
+Attendu:
+- 200
+- utilisateur banni
+
+Puis tester login du compte banni:
+- POST /auth/login => 403
+
+8. DELETE /players/admin/{id} (Admin)
+
+Attendu:
+- 200
+- utilisateur supprime
+
+### Tournaments
+
+1. GET /tournaments (Admin)
+
+Attendu:
+- 200 en admin
+- 403 en user
+
+2. GET /tournaments/{id} (Admin)
+
+Attendu:
+- 200 en admin
+- 404 si inexistant
+
+3. POST /tournaments (Admin)
+
+```json
+{
+  "name": "Spring Clash 2026",
+  "description": "Tournoi de printemps",
+  "startDate": "2026-05-01",
+  "endDate": "2026-05-15",
+  "maxParticipants": 16,
+  "status": "upcoming"
+}
+```
+
+Attendu:
+- 201
+
+4. PATCH /tournaments/{id} (Admin)
+
+```json
+{
+  "status": "ongoing"
+}
+```
+
+Attendu:
+- 200
+
+5. DELETE /tournaments/{id} (Admin)
+
+Attendu:
+- 200
+
+6. POST /tournaments/{id}/join (Auth)
+
+Attendu:
+- 201 ou 200 selon cas
+- impossible sans token (401)
+- impossible si user banni (403)
+- impossible si tournoi plein (400)
+
+### Matches
+
+Toutes les routes matches sont Admin.
+
+1. POST /matches
+
+```json
+{
+  "tournamentId": "TOURNAMENT_UUID_OPTIONNEL",
+  "playerOneId": "PLAYER_ONE_UUID",
+  "playerTwoId": "PLAYER_TWO_UUID",
+  "winnerId": "PLAYER_ONE_UUID",
+  "score": "2-1",
+  "playedAt": "2026-06-01T20:00:00.000Z",
+  "status": "finished"
+}
+```
+
+Attendu:
+- 201 en admin
+- 403 en user
+
+2. GET /matches
+
+Attendu:
+- 200
+
+3. GET /matches/{id}
+
+Attendu:
+- 200
+- 404 si inexistant
+
+4. PATCH /matches/{id}
+
+```json
+{
+  "score": "3-2"
+}
+```
+
+Attendu:
+- 200
+
+5. DELETE /matches/{id}
+
+Attendu:
+- 200
+
+## 9. Jeu de verification final (demo rapide)
+
+Ordre conseille:
+
+1. Login admin et user.
+2. Creer un tournoi (admin).
+3. Join tournoi avec user.
+4. Creer un match (admin) entre player1 et player2 avec winner.
+5. Verifier /players/player1/stats et /players/player2/stats.
+6. Bannir player2.
+7. Montrer que player2 ne peut plus se connecter.
+
+## 10. Tests automatises
+
+En local hors Docker:
+
+```bash
+pnpm test -- --runInBand
+pnpm run test:routes
+pnpm run test:seed
+pnpm build
+```

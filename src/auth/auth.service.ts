@@ -1,12 +1,13 @@
 import {
   BadRequestException,
+  ForbiddenException,
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
 
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
-import { randomUUID } from 'crypto';
+import { randomUUID } from 'node:crypto';
 
 import { UsersService } from '../users/users.service';
 import { User } from '../users/entities/user.entity';
@@ -54,6 +55,7 @@ export class AuthService {
       favoriteGame: null,
       role: UserRole.PLAYER,
       isEmailVerified: false,
+      banned: false,
       emailVerificationToken,
       emailVerificationExpires,
       passwordResetToken: null,
@@ -87,6 +89,10 @@ export class AuthService {
 
     if (!user.isEmailVerified) {
       throw new UnauthorizedException('Email is not verified');
+    }
+
+    if (user.banned) {
+      throw new ForbiddenException('Your account is banned');
     }
 
     const payload = {

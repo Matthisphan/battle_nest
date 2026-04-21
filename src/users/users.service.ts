@@ -3,6 +3,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
 import { UserRole } from '../auth/enums/user-role.enum';
+import { Match } from '../matches/entities/match.entity';
+import { MatchStatus } from '../matches/enums/match-status.enum';
 import { User } from './entities/user.entity';
 
 @Injectable()
@@ -10,6 +12,8 @@ export class UsersService {
   constructor(
     @InjectRepository(User)
     private readonly usersRepository: Repository<User>,
+    @InjectRepository(Match)
+    private readonly matchesRepository: Repository<Match>,
   ) {}
 
   create(data: Partial<User>) {
@@ -29,6 +33,28 @@ export class UsersService {
     });
   }
 
+  async setBanStatus(id: string, banned: boolean) {
+    const user = await this.findByIdOrFail(id);
+    user.banned = banned;
+
+    const updatedUser = await this.usersRepository.save(user);
+
+    return {
+      message: banned
+        ? 'User banned successfully'
+        : 'User unbanned successfully',
+      user: this.toPrivateProfile(updatedUser),
+    };
+  }
+
+  async removeById(id: string) {
+    const user = await this.findByIdOrFail(id);
+
+    await this.usersRepository.remove(user);
+
+    return { message: 'User deleted successfully' };
+  }
+
   findAllPlayers() {
     return this.usersRepository.find({
       where: {
@@ -44,6 +70,78 @@ export class UsersService {
     return this.usersRepository.findOne({
       where: { id },
     });
+  }
+
+  async getUserStats(userId: string) {
+    await this.findByIdOrFail(userId);
+
+    const matches = await this.matchesRepository.find({
+      where: [{ playerOne: { id: userId } }, { playerTwo: { id: userId } }],
+      relations: {
+        playerOne: true,
+        playerTwo: true,
+        winner: true,
+        tournament: true,
+      },
+      order: {
+        playedAt: 'DESC',
+      },
+    });
+
+    const finishedMatches = matches.filter(
+      (match) => match.status === MatchStatus.FINISHED,
+    );
+
+    const wins = finishedMatches.filter(
+      (match) => match.winner?.id === userId,
+    ).length;
+
+    const losses = finishedMatches.filter(
+      (match) => !!match.winner && match.winner.id !== userId,
+    ).length;
+
+    const history = matches.map((match) => {
+      const opponent =
+        match.playerOne.id === userId ? match.playerTwo : match.playerOne;
+
+      let result: 'win' | 'loss' | 'pending' = 'pending';
+
+      if (match.status === MatchStatus.FINISHED && match.winner) {
+        result = match.winner.id === userId ? 'win' : 'loss';
+      }
+
+      return {
+        matchId: match.id,
+        playedAt: match.playedAt,
+        status: match.status,
+        score: match.score,
+        result,
+        tournament: match.tournament
+          ? {
+              id: match.tournament.id,
+              name: match.tournament.name,
+            }
+          : null,
+        opponent: {
+          id: opponent.id,
+          username: opponent.username,
+        },
+      };
+    });
+
+    const totalFinishedMatches = finishedMatches.length;
+
+    return {
+      totalMatches: matches.length,
+      totalFinishedMatches,
+      wins,
+      losses,
+      winRate:
+        totalFinishedMatches === 0
+          ? 0
+          : Number(((wins / totalFinishedMatches) * 100).toFixed(2)),
+      history,
+    };
   }
 
   async findByIdOrFail(id: string) {
@@ -130,6 +228,7 @@ export class UsersService {
       favoriteGame: user.favoriteGame,
       role: user.role,
       isEmailVerified: user.isEmailVerified,
+      banned: user.banned,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
     };

@@ -7,7 +7,11 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './auth/auth.module';
 import { Game } from './games/entities/game.entity';
 import { GamesModule } from './games/games.module';
+import { Match } from './matches/entities/match.entity';
+import { MatchesModule } from './matches/matches.module';
 import { DatabaseSeed } from './seeds/database.seed';
+import { Tournament } from './tournaments/entities/tournament.entity';
+import { TournamentsModule } from './tournaments/tournaments.module';
 import { User } from './users/entities/user.entity';
 import { UsersModule } from './users/users.module';
 
@@ -33,16 +37,18 @@ import { UsersModule } from './users/users.module';
         username: configService.get<string>('DB_USERNAME'),
         password: configService.get<string>('DB_PASSWORD'),
         database: configService.get<string>('DB_NAME'),
-        entities: [User, Game],
+        entities: [User, Game, Tournament, Match],
         synchronize: true,
       }),
     }),
 
-    TypeOrmModule.forFeature([Game]),
+    TypeOrmModule.forFeature([Game, Tournament, Match]),
 
     UsersModule,
     AuthModule,
     GamesModule,
+    TournamentsModule,
+    MatchesModule,
   ],
   providers: [
     {
