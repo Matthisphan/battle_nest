@@ -1,6 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 
 import { ConfigService } from '@nestjs/config';
 
@@ -22,19 +21,19 @@ describe('DatabaseSeed', () => {
     get: jest.fn(),
   };
 
-  const gamesRepositoryMock: Partial<Repository<Game>> = {
+  const gamesRepositoryMock = {
     findOne: jest.fn(),
     create: jest.fn((data) => data as Game),
     save: jest.fn((entity) => Promise.resolve(entity as Game)),
   };
 
-  const tournamentsRepositoryMock: Partial<Repository<Tournament>> = {
+  const tournamentsRepositoryMock = {
     findOne: jest.fn(),
     create: jest.fn((data) => data as Tournament),
     save: jest.fn((entity) => Promise.resolve(entity as Tournament)),
   };
 
-  const matchesRepositoryMock: Partial<Repository<Match>> = {
+  const matchesRepositoryMock = {
     findOne: jest.fn(),
     create: jest.fn((data) => data as Match),
     save: jest.fn((entity) => Promise.resolve(entity as Match)),
@@ -53,9 +52,9 @@ describe('DatabaseSeed', () => {
       return undefined;
     });
 
-    gamesRepositoryMock.findOne = jest.fn().mockResolvedValue(null);
-    tournamentsRepositoryMock.findOne = jest.fn().mockResolvedValue(null);
-    matchesRepositoryMock.findOne = jest.fn().mockResolvedValue(null);
+    gamesRepositoryMock.findOne.mockResolvedValue(null);
+    tournamentsRepositoryMock.findOne.mockResolvedValue(null);
+    matchesRepositoryMock.findOne.mockResolvedValue(null);
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [

@@ -2,6 +2,7 @@ import { NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 
+import { UserRole } from '../auth/enums/user-role.enum';
 import { Match } from '../matches/entities/match.entity';
 import { MatchStatus } from '../matches/enums/match-status.enum';
 import { User } from './entities/user.entity';
@@ -128,5 +129,58 @@ describe('UsersService', () => {
     await expect(service.removeById('missing-id')).rejects.toBeInstanceOf(
       NotFoundException,
     );
+  });
+
+  it('findByUsernameOrFail() trim le username et retourne le user', async () => {
+    const user = {
+      id: 'user-id',
+      username: 'player1',
+      email: 'player1@test.dev',
+    };
+
+    usersRepositoryMock.findOne.mockResolvedValue(user);
+
+    await expect(service.findByUsernameOrFail('  player1  ')).resolves.toEqual(
+      user,
+    );
+    expect(usersRepositoryMock.findOne).toHaveBeenCalledWith({
+      where: { username: 'player1' },
+    });
+  });
+
+  it('findByUsernameOrFail() lance NotFoundException si absent', async () => {
+    usersRepositoryMock.findOne.mockResolvedValue(null);
+
+    await expect(service.findByUsernameOrFail('missing-user')).rejects.toBeInstanceOf(
+      NotFoundException,
+    );
+  });
+
+  it('findPublicByUsernameOrFail() recherche un player par username', async () => {
+    const player = {
+      id: 'player-id',
+      username: 'player2',
+      role: UserRole.PLAYER,
+    };
+
+    usersRepositoryMock.findOne.mockResolvedValue(player);
+
+    await expect(
+      service.findPublicByUsernameOrFail('  player2  '),
+    ).resolves.toEqual(player);
+    expect(usersRepositoryMock.findOne).toHaveBeenCalledWith({
+      where: {
+        username: 'player2',
+        role: UserRole.PLAYER,
+      },
+    });
+  });
+
+  it('findPublicByUsernameOrFail() lance NotFoundException si joueur absent', async () => {
+    usersRepositoryMock.findOne.mockResolvedValue(null);
+
+    await expect(
+      service.findPublicByUsernameOrFail('unknown-player'),
+    ).rejects.toBeInstanceOf(NotFoundException);
   });
 });

@@ -447,7 +447,9 @@ En local hors Docker:
 
 ```bash
 pnpm test -- --runInBand
+pnpm run test:all
 pnpm run test:routes
+pnpm run test:services
 pnpm run test:seed
 pnpm build
 ```

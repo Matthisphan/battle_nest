@@ -1,5 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 
+import { TournamentStatus } from './enums/tournament-status.enum';
 import { TournamentsController } from './tournaments.controller';
 import { TournamentsService } from './tournaments.service';
 
@@ -31,6 +32,24 @@ describe('TournamentsController', () => {
     controller = module.get<TournamentsController>(TournamentsController);
   });
 
+  it('findAll() retourne la liste des tournois', async () => {
+    const tournaments = [{ id: 't1', name: 'Spring Clash' }];
+
+    tournamentsServiceMock.findAll.mockResolvedValue(tournaments);
+
+    await expect(controller.findAll()).resolves.toEqual(tournaments);
+    expect(tournamentsServiceMock.findAll).toHaveBeenCalledTimes(1);
+  });
+
+  it('findOne() recupere un tournoi par id', async () => {
+    const tournament = { id: 't1', name: 'Spring Clash' };
+
+    tournamentsServiceMock.findByIdOrFail.mockResolvedValue(tournament);
+
+    await expect(controller.findOne('t1')).resolves.toEqual(tournament);
+    expect(tournamentsServiceMock.findByIdOrFail).toHaveBeenCalledWith('t1');
+  });
+
   it('create() cree un tournoi via le service', async () => {
     const dto = {
       name: 'Spring Clash',
@@ -47,7 +66,7 @@ describe('TournamentsController', () => {
   });
 
   it('update() met a jour un tournoi', async () => {
-    const dto = { status: 'ongoing' };
+    const dto = { status: TournamentStatus.ONGOING };
     const updated = { id: 'tournament-id', ...dto };
 
     tournamentsServiceMock.update.mockResolvedValue(updated);
@@ -71,12 +90,21 @@ describe('TournamentsController', () => {
 
     tournamentsServiceMock.join.mockResolvedValue(response);
 
-    await expect(controller.join('tournament-id', req as never)).resolves.toEqual(
-      response,
-    );
+    await expect(
+      controller.join('tournament-id', req as never),
+    ).resolves.toEqual(response);
     expect(tournamentsServiceMock.join).toHaveBeenCalledWith(
       'tournament-id',
       'player-id',
     );
+  });
+
+  it('remove() supprime un tournoi', async () => {
+    const response = { message: 'Tournament deleted successfully' };
+
+    tournamentsServiceMock.remove.mockResolvedValue(response);
+
+    await expect(controller.remove('tournament-id')).resolves.toEqual(response);
+    expect(tournamentsServiceMock.remove).toHaveBeenCalledWith('tournament-id');
   });
 });

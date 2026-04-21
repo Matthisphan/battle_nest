@@ -30,6 +30,15 @@ describe('GamesController', () => {
     controller = module.get<GamesController>(GamesController);
   });
 
+  it('findAll() retourne la liste des jeux', async () => {
+    const games = [{ id: 'g1', name: 'Tekken 8' }];
+
+    gamesServiceMock.findAll.mockResolvedValue(games);
+
+    await expect(controller.findAll()).resolves.toEqual(games);
+    expect(gamesServiceMock.findAll).toHaveBeenCalledTimes(1);
+  });
+
   it('findOne() recherche un jeu par name', async () => {
     const game = {
       id: 'game-id',
@@ -40,6 +49,21 @@ describe('GamesController', () => {
 
     await expect(controller.findOne('Dota 2')).resolves.toEqual(game);
     expect(gamesServiceMock.findByNameOrFail).toHaveBeenCalledWith('Dota 2');
+  });
+
+  it('create() cree un jeu via le service', async () => {
+    const dto = {
+      name: 'The King of Fighters XV',
+      publisher: 'SNK',
+      releaseDate: '2022-02-17',
+      genre: 'Fighting',
+    };
+    const created = { id: 'game-id', ...dto };
+
+    gamesServiceMock.create.mockResolvedValue(created);
+
+    await expect(controller.create(dto)).resolves.toEqual(created);
+    expect(gamesServiceMock.create).toHaveBeenCalledWith(dto);
   });
 
   it('update() met a jour un jeu via son name', async () => {
@@ -65,4 +89,3 @@ describe('GamesController', () => {
     expect(gamesServiceMock.remove).toHaveBeenCalledWith('Dota 2');
   });
 });
-
