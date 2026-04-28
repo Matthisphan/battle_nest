@@ -83,7 +83,13 @@ docker compose --env-file .env.prod -f docker-compose.prod.yml down
 - API: http://localhost:3000
 - Swagger: http://localhost:3000/api
 - PgAdmin (dev): http://localhost:5050
-
+  ```bash
+  DB_HOST=db
+  DB_PORT=5432
+  DB_USERNAME=postgres
+  DB_PASSWORD=postgres
+  DB_NAME=battle_nest_dev
+  ```
 ## 5. Recuperer les tokens depuis les logs
 
 Pour les routes suivantes, le token est affiche dans les logs Nest:
@@ -103,18 +109,34 @@ Tu peux aussi filtrer visuellement dans les logs sur:
 ## 6. Comptes de test seedes en dev
 
 - Admin:
-  - email: admin@battle.com
-  - password: Admin123!
-- User:
-  - email: player1@battle.com
-  - password: Player123!
-- User:
-  - email: player2@battle.com
-  - password: Player123!
+```json
+{
+  "email": "admin@battle.com",
+  "password": "Admin123!"
+}
+```
+- User1:
+```json
+{
+  "email": "player1@battle.com",
+  "password": "Player123!"
+}
+```
+
+- User2:
+```json
+{
+  "email": "player2@battle.com",
+  "password": "Player123!"
+}
+```
 - User (banni):
-  - email: banned@battle.com
-  - password: Player123!
-  - statut: banned=true
+```json
+{
+  "email": "banned@battle.com",
+  "password": "Player123!"
+}
+```
 
 ## 7. Procedure rapide avant demo
 
@@ -148,12 +170,14 @@ Attendu:
 - 201
 - message de succes
 - utilisateur cree non verifie
+- token de reset dans les logs
 
 2. GET /auth/verify-email?token=... (Public)
 
-Attendu:
-- 200
-- email verifie
+   Attendu:
+   - 200
+   - email verifie
+
 
 3. POST /auth/login (Public)
 
@@ -200,7 +224,7 @@ Attendu:
 Attendu:
 - 201
 - message generique
-- token de reset dans les logs
+- token de reset dans les logs docker
 
 5. POST /auth/reset-password (Public)
 
